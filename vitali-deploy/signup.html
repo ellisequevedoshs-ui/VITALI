@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vitali - Sign Up</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <h1>Create Account</h1>
+  <form id="signup-form">
+  <input type="text" id="name" placeholder="Name/Nickname" required><br><br>
+  <input type="date" id="dob" required><br><br>
+  <input type="email" id="email" placeholder="Email" required><br><br>
+  <input type="password" id="password" placeholder="Password" required><br><br>
+  <select id="accountType">
+    <option value="child">Child</option>
+    <option value="parent">Parent/Guardian</option>
+    <option value="individual">Individual</option>
+  </select><br><br>
+  <button type="submit">Sign Up</button>
+</form>
+
+  <p>Already have an account? <a href="login.html">Log In</a></p>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="./firebase.js"></script>
+
+  <script>
+    const signupForm = document.getElementById("signup-form");
+    signupForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const dob = document.getElementById("dob").value;
+      const email = document.getElementById("email").value;
+      const password = document.getElementById("password").value;
+      const accountType = document.getElementById("accountType").value;
+
+      auth.createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+          const user = userCredential.user;
+          // Save extra info
+          db.collection("users").doc(user.uid).set({
+            name: name,
+            dob: dob,
+            accountType: accountType,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          alert("Account created! Redirecting...");
+          window.location.href = "dashboard.html";
+        })
+        .catch((error) => {
+          alert("Error: " + error.message);
+        });
+    });
+  </script>
+</body>
+</html>

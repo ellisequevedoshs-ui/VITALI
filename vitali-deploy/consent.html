@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Consent | Vitali</title>
+</head>
+<body>
+
+<h2>Consent</h2>
+
+<p>This app stores your vitamin tracking data.</p>
+
+<button onclick="acceptConsent()">I Agree</button>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+import { doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+window.acceptConsent = async function(){
+
+const user = auth.currentUser;
+
+if(!user){
+alert("Not logged in");
+return;
+}
+
+await setDoc(doc(db,"users",user.uid),{
+consent: true,
+streak: 0,
+vitamins: []
+},{
+merge:true
+});
+
+window.location.href="dashboard.html";
+
+}
+</script>
+
+</body>
+</html>

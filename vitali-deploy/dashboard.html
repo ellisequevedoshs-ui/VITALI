@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Vitali Dashboard</title>
+</head>
+<body>
+
+<h2>Vitali Dashboard</h2>
+
+<p>Streak: <span id="streak">0</span></p>
+
+<button onclick="checkIn()">Daily Check-In</button>
+
+<hr>
+
+<h3>Add Vitamin</h3>
+
+<input id="vitaminName" placeholder="Vitamin name">
+<input id="vitaminDose" placeholder="Dose">
+<button onclick="addVitamin()">Add Vitamin</button>
+
+<h3>Your Vitamins</h3>
+
+<div id="vitaminList"></div>
+
+<p id="message"></p>
+
+<script type="module">
+import { auth, db } from "./firebase.js";
+
+import {
+doc,
+getDoc,
+setDoc,
+updateDoc,
+arrayUnion
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+import {
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+let currentUser;
+
+onAuthStateChanged(auth, (user)=>{
+
+if(user){
+
+currentUser = user;
+
+loadUserData();
+
+}
+
+});
+
+async function loadUserData(){
+
+const ref = doc(db,"users",currentUser.uid);
+
+const snap = await getDoc(ref);
+
+const data = snap.data();
+
+document.getElementById("streak").innerText = data.streak;
+
+showVitamins(data.vitamins || []);
+
+}
+
+window.checkIn = async function(){
+
+const ref = doc(db,"users",currentUser.uid);
+
+const snap = await getDoc(ref);
+
+let streak = snap.data().streak || 0;
+
+streak++;
+
+await updateDoc(ref,{
+streak: streak,
+lastCheckIn: new Date()
+});
+
+document.getElementById("streak").innerText = streak;
+
+document.getElementById("message").innerText = "Check-in saved";
+
+}
+
+window.addVitamin = async function(){
+
+if(!currentUser){
+alert("User not logged in");
+return;
+}
+
+const name =
+document.getElementById("vitaminName").value;
+
+const dose =
+document.getElementById("vitaminDose").value;
+
+if(!name || !dose){
+alert("Enter vitamin info");
+return;
+}
+
+const ref = doc(db,"users",currentUser.uid);
+
+await setDoc(ref,{
+vitamins: arrayUnion({
+name: name,
+dose: dose,
+takenToday: false,
+time: new Date().toISOString()
+})
+},{
+merge: true
+});
+
+alert("Vitamin added");
+
+loadVitamins();
+
+}
+
+function showVitamins(vitamins){
+
+const container =
+document.getElementById("vitaminList");
+
+container.innerHTML="";
+
+vitamins.forEach((vitamin,index)=>{
+
+const div=document.createElement("div");
+
+div.innerHTML=`
+
+<b>${vitamin.name}</b>
+(${vitamin.dose})
+
+<button onclick="markTaken(${index})">
+Mark Taken
+</button>
+
+`;
+
+container.appendChild(div);
+
+});
+
+}
+
+async function loadVitamins(){
+
+if(!currentUser) return;
+
+const ref = doc(db,"users",currentUser.uid);
+
+const snap = await getDoc(ref);
+
+const container =
+document.getElementById("vitaminList");
+
+container.innerHTML="";
+
+if(!snap.exists()){
+container.innerHTML="No vitamins yet";
+return;
+}
+
+const vitamins = snap.data().vitamins || [];
+
+vitamins.forEach((vitamin,index)=>{
+
+const div = document.createElement("div");
+
+div.innerHTML =
+vitamin.name + " (" + vitamin.dose + ")";
+
+container.appendChild(div);
+
+});
+
+}
+
+window.markTaken = async function(index){
+
+const ref = doc(db,"users",currentUser.uid);
+
+const snap = await getDoc(ref);
+
+let vitamins = snap.data().vitamins;
+
+vitamins[index].takenToday = true;
+
+await updateDoc(ref,{
+vitamins: vitamins
+});
+
+loadVitamins();
+
+}
+
+</script>
+
+</body>
+</html>
