@@ -1,59 +1,43 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-<title>Login</title>
-</head>
-<body>
+  <head>
+    <title>Login</title>
+  </head>
+  <body>
+    <h2>Login</h2>
 
-<h2>Login</h2>
+    <form id="loginForm">
+      <input id="email" type="email" placeholder="Email" required />
+      <br /><br />
 
-<form id="loginForm">
+      <input id="password" type="password" placeholder="Password" required />
+      <br /><br />
 
-<input id="email" type="email" placeholder="Email" required>
-<br><br>
+      <button type="submit">Log In</button>
+    </form>
 
-<input id="password" type="password" placeholder="Password" required>
-<br><br>
+    <script type="module">
+      import { auth } from "./firebase.js";
 
-<button type="submit">Log In</button>
+      import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
-</form>
+      const form = document.getElementById("loginForm");
 
-<script type="module">
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-import { auth } from "./firebase.js";
+        const email = document.getElementById("email").value;
 
-import {
-signInWithEmailAndPassword
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        const password = document.getElementById("password").value;
 
-const form = document.getElementById("loginForm");
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
 
-form.addEventListener("submit", async (e)=>{
-
-e.preventDefault();
-
-const email =
-document.getElementById("email").value;
-
-const password =
-document.getElementById("password").value;
-
-try{
-
-await signInWithEmailAndPassword(auth,email,password);
-
-window.location.href="dashboard.html";
-
-}catch(error){
-
-alert(error.message);
-
-}
-
-});
-
-</script>
-
-</body>
+          window.location.href = "dashboard.html";
+        } catch (error) {
+          alert(error.message);
+        }
+      });
+    </script>
+  </body>
 </html>
