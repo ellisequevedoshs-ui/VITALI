@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vitali - Admin Panel</title>
+    <link rel="stylesheet" href="style.css" />
+    <style></style>
+  </head>
+  <body>
+    <div class="admin-container">
+      <h1>Admin Control Panel</h1>
+      <p>System-wide user overview and management.</p>
+
+      <button class="logout-btn" onclick="logout()">Log Out</button>
+      <hr />
+
+      <h3>Registered Users</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Current Streak</th>
+          </tr>
+        </thead>
+        <tbody id="userTableBody"></tbody>
+      </table>
+    </div>
+
+    <script type="module">
+      import { auth, db } from "./firebase.js";
+
+      import {
+        doc,
+        getDoc,
+        collection,
+        getDocs,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      import {
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          const userRef = doc(db, "users", user.uid);
+          const snap = await getDoc(userRef);
+
+          if (!snap.exists() || snap.data().role !== "admin") {
+            alert("Access Denied: Admins Only.");
+            window.location.href = "dashboard.html";
+          } else {
+            loadAllUsers();
+          }
+        } else {
+          window.location.href = "login.html";
+        }
+      });
+
+      async function loadAllUsers() {
+        const querySnapshot = await getDocs(collection(db, "users"));
+        const tableBody = document.getElementById("userTableBody");
+        tableBody.innerHTML = "";
+
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          const row = `
+            <tr>
+              <td>${data.name || "N/A"}</td>
+              <td><strong>${data.role || "user"}</strong></td>
+              <td>${data.streak || 0} days</td>
+            </tr>
+          `;
+          tableBody.innerHTML += row;
+        });
+      }
+
+      window.logout = async function () {
+        await signOut(auth);
+        window.location.href = "login.html";
+      };
+    </script>
+  </body>
+</html>

@@ -1,6 +1,13 @@
 <!doctype html>
 <html>
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="style.css" />
     <title>Login</title>
   </head>
   <body>
@@ -21,6 +28,13 @@
 
       import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
+      import {
+        doc,
+        getDoc,
+      } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+      import { db } from "./firebase.js";
+
       const form = document.getElementById("loginForm");
 
       form.addEventListener("submit", async (e) => {
@@ -31,9 +45,20 @@
         const password = document.getElementById("password").value;
 
         try {
-          await signInWithEmailAndPassword(auth, email, password);
+          const userCredential = await signInWithEmailAndPassword(
+            auth,
+            email,
+            password,
+          );
 
-          window.location.href = "dashboard.html";
+          const userRef = doc(db, "users", userCredential.user.uid);
+          const userSnap = await getDoc(userRef);
+
+          if (userSnap.exists() && userSnap.data().role === "admin") {
+            window.location.href = "admin.html";
+          } else {
+            window.location.href = "dashboard.html";
+          }
         } catch (error) {
           alert(error.message);
         }

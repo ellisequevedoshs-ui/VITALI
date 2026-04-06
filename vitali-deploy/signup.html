@@ -23,11 +23,6 @@
         placeholder="Password"
         required
       /><br /><br />
-      <select id="accountType">
-        <option value="child">Child</option>
-        <option value="parent">Parent/Guardian</option>
-        <option value="individual">Individual</option></select
-      ><br /><br />
       <button type="submit">Sign Up</button>
     </form>
 
@@ -50,7 +45,6 @@
         const dob = document.getElementById("dob").value;
         const email = document.getElementById("email").value;
         const password = document.getElementById("password").value;
-        const accountType = document.getElementById("accountType").value;
 
         try {
           const userCredential = await createUserWithEmailAndPassword(
@@ -63,7 +57,7 @@
           await setDoc(doc(db, "users", user.uid), {
             name: name,
             dob: dob,
-            accountType: accountType,
+            role: "user",
             createdAt: serverTimestamp(),
             streak: 0,
             vitamins: [],
