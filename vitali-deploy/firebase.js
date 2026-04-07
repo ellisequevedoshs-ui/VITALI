@@ -22,9 +22,9 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/10.12.2/firebas
 
 const firebaseConfig = {
   apiKey: "AIzaSyBIEk5MXcmWXM7gaFu0JSo8gBAlj6s0ELk",
-  authDomain: "test-4dc61.firebaseapp.com",
-  projectId: "test-4dc61",
-  storageBucket: "test-4dc61.firebasestorage.app",
+  authDomain: "vitali-17a9e.firebaseapp.com",
+  projectId: "vitali-17a9e",
+  storageBucket: "vitali-17a9e.firebasestorage.app",
   messagingSenderId: "249547404250",
   appId: "1:249547404250:web:9317bc3bd0a6a1b9c906e3",
 };
